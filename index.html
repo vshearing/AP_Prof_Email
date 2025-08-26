@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Professional Email Lesson</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Harmony (Slate, Teal, White) -->
+    <!-- Application Structure Plan: A tabbed, single-page application with three task-oriented sections: 'The Essentials' (interactive accordion for core concepts), 'Good vs. Bad' (clickable analysis of email examples), and 'Email Writer' (a sandbox with a dynamic feedback checklist). This structure was chosen to transform a linear presentation into an interactive learning journey, giving users control and promoting active engagement over passive reading. -->
+    <!-- Visualization & Content Choices: Report Info: 5 slides on email parts -> Goal: Inform -> Presentation: Interactive Accordion -> Interaction: Click to expand -> Justification: Breaks down content into manageable, user-controlled chunks. | Report Info: Good/Bad examples -> Goal: Compare/Analyze -> Presentation: Clickable text spans in the bad email -> Interaction: Click to reveal analysis -> Justification: Turns a passive exercise into an engaging 'spot the error' activity. | Report Info: Writing scenarios -> Goal: Apply -> Presentation: Email composition form with dynamic checklist -> Interaction: Real-time input analysis updates checklist UI -> Justification: Provides a safe practice environment with immediate, reinforcing feedback. Library/Method: Vanilla JS and Tailwind CSS for all interactions. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .tab-active {
+            border-color: #0d9488;
+            color: #0d9488;
+            font-weight: 600;
+        }
+        .tab-inactive {
+            border-color: transparent;
+            color: #475569;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .analysis-span {
+            cursor: pointer;
+            background-color: rgba(252, 165, 165, 0.4);
+            border-bottom: 2px dashed #ef4444;
+            transition: background-color 0.2s;
+        }
+        .analysis-span:hover {
+            background-color: rgba(239, 68, 68, 0.5);
+        }
+        .checklist-item.complete .icon {
+            color: #22c55e;
+        }
+        .checklist-item.complete .text {
+            text-decoration: line-through;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-teal-700 mb-2">Professional Email Essentials</h1>
+            <p class="text-lg text-slate-600">Your interactive guide to writing emails that get results.</p>
+        </header>
+
+        <nav class="mb-8 border-b border-slate-200">
+            <ul class="flex justify-center -mb-px space-x-4 sm:space-x-8">
+                <li><button class="nav-tab text-lg py-3 px-2 border-b-2 tab-active" data-tab="essentials">The Essentials</button></li>
+                <li><button class="nav-tab text-lg py-3 px-2 border-b-2 tab-inactive" data-tab="practice">Good vs. Bad</button></li>
+                <li><button class="nav-tab text-lg py-3 px-2 border-b-2 tab-inactive" data-tab="writer">Email Writer</button></li>
+            </ul>
+        </nav>
+
+        <main id="app-content">
+
+            <!-- Section 1: The Essentials -->
+            <section id="essentials" class="app-section">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-semibold text-slate-700">The Anatomy of a Professional Email</h2>
+                    <p class="mt-2 text-slate-500">Click on each section to expand and learn the key principles for crafting the perfect email.</p>
+                </div>
+                <div id="accordion-container" class="space-y-4">
+                    <!-- Accordion items will be injected here by JS -->
+                </div>
+            </section>
+
+            <!-- Section 2: Good vs. Bad -->
+            <section id="practice" class="app-section hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-semibold text-slate-700">Spot the Mistakes</h2>
+                    <p class="mt-2 text-slate-500">This email is full of common errors. Click on the highlighted phrases to see what's wrong and how to fix it.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                        <h3 class="text-lg font-semibold mb-4 text-red-600">Unprofessional Email Example</h3>
+                        <div class="bg-slate-50 p-4 rounded-md text-sm">
+                            <p><strong>Subject:</strong> <span class="analysis-span" data-analysis="subject">hey</span></p>
+                            <br>
+                            <p><span class="analysis-span" data-analysis="salutation">Hey professor,</span></p>
+                            <br>
+                            <p>Are we still doing <span class="analysis-span" data-analysis="body1">that thing on Friday?</span> I totally forgot what it was about. <span class="analysis-span" data-analysis="body2">Is it a big deal if I miss it?</span> I have something else planned. <span class="analysis-span" data-analysis="body3">LMK.</span></p>
+                            <br>
+                            <p><span class="analysis-span" data-analysis="closing">Thx,</span><br>[Student Name]</p>
+                        </div>
+                    </div>
+                    <div id="analysis-box" class="bg-teal-50 p-6 rounded-lg border border-teal-200 h-full">
+                        <h3 class="text-lg font-semibold mb-4 text-teal-800">Analysis</h3>
+                        <p id="analysis-text" class="text-teal-700">Click on a highlighted phrase to see an explanation here.</p>
+                    </div>
+                </div>
+                 <div class="text-center mt-8">
+                    <button id="show-good-email-btn" class="bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-teal-700 transition-colors">Show a Good Example</button>
+                </div>
+                <div id="good-email-container" class="mt-8 bg-white p-6 rounded-lg shadow-md border border-slate-200 hidden">
+                    <h3 class="text-lg font-semibold mb-4 text-green-600">Professional Email Example</h3>
+                    <div class="bg-slate-50 p-4 rounded-md text-sm">
+                        <p><strong>Subject:</strong> Question Regarding Upcoming Marketing Project - [Your Name]</p>
+                        <br>
+                        <p>Dear Ms. Vance,</p>
+                        <br>
+                        <p>I hope this email finds you well.</p>
+                        <p>I am writing to inquire about the next steps for the upcoming marketing project we discussed during our meeting on Tuesday. Specifically, I would appreciate clarification on the preferred format for submitting our initial proposal and the deadline for this submission.</p>
+                        <p>I have started outlining the preliminary ideas and want to ensure I am on the right track. Please let me know if there's a specific template or additional resources I should review.</p>
+                        <br>
+                        <p>Thank you for your guidance.</p>
+                        <br>
+                        <p>Best regards,<br>[Student Name]<br>Marketing Intern</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Email Writer -->
+            <section id="writer" class="app-section hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-semibold text-slate-700">Put Your Skills to the Test</h2>
+                    <p class="mt-2 text-slate-500">Choose a scenario, write your email, and watch the checklist update in real-time as you follow best practices.</p>
+                </div>
+                <div class="grid lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                        <div class="mb-4">
+                            <label for="scenario-select" class="block text-sm font-medium text-slate-700 mb-1">Choose a Scenario:</label>
+                            <select id="scenario-select" class="w-full p-2 border border-slate-300 rounded-md focus:ring-teal-500 focus:border-teal-500">
+                                <!-- Scenarios injected by JS -->
+                            </select>
+                        </div>
+                        <p id="scenario-description" class="text-sm text-slate-500 bg-slate-100 p-3 rounded-md mb-4 h-24"></p>
+                        <div class="space-y-4">
+                            <input id="email-to" type="text" placeholder="To:" class="w-full p-2 border border-slate-300 rounded-md" readonly>
+                            <input id="email-subject" type="text" placeholder="Subject:" class="w-full p-2 border border-slate-300 rounded-md">
+                            <textarea id="email-body" placeholder="Email Body..." rows="10" class="w-full p-2 border border-slate-300 rounded-md"></textarea>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                        <h3 class="text-lg font-semibold mb-4 text-slate-700">Professional Checklist</h3>
+                        <ul id="email-checklist" class="space-y-3">
+                            <!-- Checklist items injected by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const essentialsData = [
+                {
+                    title: '🎯 The Powerful Subject Line',
+                    content: `<strong>Purpose:</strong> To inform the recipient immediately what your email is about. It helps them prioritize and organize their inbox.<br><br><strong>Key Principles:</strong><ul class="list-disc list-inside space-y-1 mt-2"><li><strong>Be Clear & Concise:</strong> Get straight to the point. Avoid vague phrases like "Hello" or "Question."</li><li><strong>Be Specific:</strong> Include keywords that help the recipient understand the content.</li><li><strong>Keep it Brief:</strong> Aim for 6-8 words. Many recipients check emails on mobile devices.</li><li><strong>Avoid ALL CAPS or Excessive Punctuation:</strong> It looks aggressive or spammy.</li></ul>`
+                },
+                {
+                    title: '✍️ Salutation & Opening',
+                    content: `<strong>Purpose:</strong> To address the recipient respectfully and establish a professional tone.<br><br><strong>Key Principles:</strong><ul class="list-disc list-inside space-y-1 mt-2"><li>Use formal salutations for new contacts (e.g., "Dear Mr./Ms. [Last Name],").</li><li>Use slightly less formal greetings for known colleagues (e.g., "Hello [First Name],").</li><li>State your purpose clearly in the first sentence.</li><li>Avoid slang, emojis, or overly casual greetings like "Hey."</li></ul>`
+                },
+                {
+                    title: '📝 Body & Content',
+                    content: `<strong>Purpose:</strong> To convey your message clearly, concisely, and completely.<br><br><strong>Key Principles:</strong><ul class="list-disc list-inside space-y-1 mt-2"><li><strong>Clarity is King:</strong> Use straightforward language.</li><li><strong>Be Concise:</strong> Get to the point. Use bullet points for complex information.</li><li><strong>Be Comprehensive:</strong> Provide all necessary details to avoid back-and-forth.</li><li><strong>Maintain a Professional Tone:</strong> Be polite and avoid humor that could be misinterpreted.</li></ul>`
+                },
+                {
+                    title: '✒️ Closing & Signature',
+                    content: `<strong>Purpose:</strong> To politely conclude your email and provide your contact information.<br><br><strong>Key Principles:</strong><ul class="list-disc list-inside space-y-1 mt-2"><li>Use professional closings like "Sincerely," "Best regards," or "Thank you,".</li><li>Your signature should include your full name and title/role.</li><li>Optionally include your phone number or a LinkedIn profile link.</li></ul>`
+                },
+                {
+                    title: '✨ The Final Polish: Proofreading & Tone',
+                    content: `<strong>Purpose:</strong> To ensure your email is error-free and leaves a positive impression.<br><br><strong>Key Principles:</strong><ul class="list-disc list-inside space-y-1 mt-2"><li><strong>Always Proofread:</strong> Read your email aloud to catch errors.</li><li><strong>Check Your Tone:</strong> Read it from the recipient's perspective. Does it sound polite and respectful?</li><li><strong>Check Attachments:</strong> Ensure all mentioned files are actually attached.</li><li><strong>Double-check Recipients:</strong> Make sure you're sending it to the right person.</li></ul>`
+                }
+            ];
+
+            const accordionContainer = document.getElementById('accordion-container');
+            essentialsData.forEach((item, index) => {
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'bg-white rounded-lg shadow-md border border-slate-200';
+                accordionItem.innerHTML = `
+                    <button class="accordion-header w-full flex justify-between items-center text-left p-4 font-semibold text-slate-700">
+                        <span>${item.title}</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4 text-slate-600">
+                        <div class="pt-2 border-t border-slate-200">${item.content}</div>
+                    </div>
+                `;
+                accordionContainer.appendChild(accordionItem);
+            });
+
+            document.querySelectorAll('.accordion-header').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('span:last-child');
+                    
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                        document.querySelectorAll('.accordion-header span:last-child').forEach(i => i.style.transform = 'rotate(0deg)');
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+
+            const navTabs = document.querySelectorAll('.nav-tab');
+            const sections = document.querySelectorAll('.app-section');
+
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+
+                    navTabs.forEach(t => {
+                        t.classList.remove('tab-active');
+                        t.classList.add('tab-inactive');
+                    });
+                    tab.classList.add('tab-active');
+                    tab.classList.remove('tab-inactive');
+
+                    sections.forEach(section => {
+                        if (section.id === tabId) {
+                            section.classList.remove('hidden');
+                        } else {
+                            section.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            const analysisSpans = document.querySelectorAll('.analysis-span');
+            const analysisText = document.getElementById('analysis-text');
+            const analysisData = {
+                subject: '<strong>Vague Subject:</strong> The subject "hey" is unprofessional and gives the recipient no information about the email\'s content. A good subject line is specific, like "Question about Friday\'s meeting".',
+                salutation: '<strong>Overly Casual Salutation:</strong> "Hey professor" is too informal. A respectful salutation like "Dear Professor Davis," should be used.',
+                body1: '<strong>Unclear Reference:</strong> "that thing on Friday" is vague and shows a lack of preparation. Be specific about the topic you are referring to.',
+                body2: '<strong>Unprofessional Tone:</strong> "Is it a big deal if I miss it?" sounds dismissive and shifts responsibility. It\'s better to state a valid reason for potentially missing something.',
+                body3: '<strong>Use of Slang:</strong> "LMK" (Let Me Know) is an abbreviation that is not appropriate for professional communication. Always write out the full words.',
+                closing: '<strong>Informal Closing:</strong> "Thx" is too casual. Use a professional closing like "Thank you," or "Best regards,".'
+            };
+
+            analysisSpans.forEach(span => {
+                span.addEventListener('click', () => {
+                    const key = span.dataset.analysis;
+                    analysisText.innerHTML = analysisData[key];
+                });
+            });
+
+            document.getElementById('show-good-email-btn').addEventListener('click', () => {
+                document.getElementById('good-email-container').classList.remove('hidden');
+            });
+
+            const scenarios = [
+                { 
+                    id: 'job',
+                    name: 'Applying for a Job',
+                    description: 'You saw an online ad for a part-time administrative assistant at "City Community Center." Express your interest and attach your resume.',
+                    to: 'jobs@citycommunitycenter.org'
+                },
+                { 
+                    id: 'followup',
+                    name: 'Following Up After a Job Fair',
+                    description: 'You spoke with Ms. Sarah Chen from "Innovate Tech Solutions" about a marketing internship. Send a thank-you email and reiterate your interest.',
+                    to: 'sarah.chen@innovatetech.com'
+                },
+                {
+                    id: 'info',
+                    name: 'Requesting College Information',
+                    description: 'You are applying to "State University" and need to know if they accept digital transcripts. You found the admissions office email.',
+                    to: 'admissions@stateuni.edu'
+                }
+            ];
+
+            const scenarioSelect = document.getElementById('scenario-select');
+            scenarios.forEach(s => {
+                const option = document.createElement('option');
+                option.value = s.id;
+                option.textContent = s.name;
+                scenarioSelect.appendChild(option);
+            });
+            
+            const checklistItems = [
+                { id: 'subject', text: 'Clear & specific subject line' },
+                { id: 'salutation', text: 'Professional salutation (e.g., "Dear...")' },
+                { id: 'purpose', text: 'Stated purpose in the opening' },
+                { id: 'body', text: 'Concise and clear body content' },
+                { id: 'closing', text: 'Professional closing (e.g., "Best regards,")' },
+                { id: 'signature', text: 'Full name in signature' }
+            ];
+
+            const checklistContainer = document.getElementById('email-checklist');
+            checklistItems.forEach(item => {
+                const li = document.createElement('li');
+                li.id = `check-${item.id}`;
+                li.className = 'checklist-item flex items-center text-slate-500';
+                li.innerHTML = `
+                    <span class="icon mr-2 text-slate-400">●</span>
+                    <span class="text">${item.text}</span>
+                `;
+                checklistContainer.appendChild(li);
+            });
+
+            const emailSubject = document.getElementById('email-subject');
+            const emailBody = document.getElementById('email-body');
+
+            function updateScenario() {
+                const selectedId = scenarioSelect.value;
+                const scenario = scenarios.find(s => s.id === selectedId);
+                document.getElementById('scenario-description').textContent = scenario.description;
+                document.getElementById('email-to').value = `To: ${scenario.to}`;
+                validateEmail();
+            }
+
+            function validateEmail() {
+                const subject = emailSubject.value.trim();
+                const body = emailBody.value.trim().toLowerCase();
+
+                const check = (id, condition) => {
+                    const item = document.getElementById(`check-${id}`);
+                    if (condition) {
+                        item.classList.add('complete');
+                    } else {
+                        item.classList.remove('complete');
+                    }
+                };
+
+                check('subject', subject.length > 5 && subject.split(' ').length > 1);
+                check('salutation', body.startsWith('dear') || body.startsWith('hello'));
+                check('purpose', body.includes('i am writing to') || body.includes('following up') || body.includes('inquiring about'));
+                check('body', body.length > 50);
+                check('closing', body.includes('sincerely') || body.includes('best regards') || body.includes('thank you'));
+                check('signature', body.split('\n').some(line => line.toLowerCase().includes('sincerely,') || line.toLowerCase().includes('best regards,')) && body.split('\n').length > 3);
+            }
+
+            scenarioSelect.addEventListener('change', updateScenario);
+            emailSubject.addEventListener('input', validateEmail);
+            emailBody.addEventListener('input', validateEmail);
+            
+            updateScenario();
+        });
+    </script>
+</body>
+</html>
